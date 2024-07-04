@@ -15,20 +15,20 @@ router.get("/", checkCookie, async (req, res) => {          // 송금 기본 페
             method: "post",
             url: api_url + "/api/beneficiary/account",
             headers: {"authorization": "1 " + cookie},
-            data:en_data
+            data: en_data
         }).then((data2) => {
-            var d = decryptRequest((data2.data));
+            var d = decryptRequest(data2.data);
             var results = d.data.accountdata;
             var html_data = `
-                <input type="text" class="form-control form-control-user" autocomplete="off" id="drop_from" name="from_account" placeholder="보내는 계좌번호" list="dropdown_from">
-                <datalist id="dropdown_from">`;
+                <select class="form-control form-control-user mb-3" name="from_account" aria-label="Large select example" style="width: 100%;">
+                    <option selected>보내는 계좌번호를 선택해주세요.</option>`;
             results.forEach(function (a) {
-                html_data += `<option value="${a}"></option>`;
+                html_data += `<option value="${a}">${a}</option>`;
             });
 
-            html_data += `</datalist><br>`;
-
-            html_data += `<input type="text" class="form-control form-control-user mb-3"id="to_account" name="to_account" placeholder="대상 계좌번호" > `
+            html_data += `</select>
+                <input type="text" class="form-control form-control-user mb-3" id="to_account" name="to_account" placeholder="대상 계좌번호" > `;
+            
             res.render("Banking/trade_send", {pending: data, html: html_data, select: "send"});
         });
     });
@@ -44,14 +44,13 @@ router.post("/post", checkCookie, function (req, res, next) {          // 송금
         json_data['to_account'] = parseInt(to_account);   //데이터가 숫자로 들어가야 동작함
         json_data['amount'] = parseInt(amount);
         json_data['sendtime'] = seoultime;
-
         json_data['accountPW'] = sha256(accountPW);
         json_data['username'] = data.data.username;
         json_data['membership'] = data.data.membership;
         json_data['is_admin'] = data.data.is_admin;
         
-        const en_data = encryptResponse(JSON.stringify(json_data));// 객체를 문자열로 반환 후 암호화
-
+        const en_data = encryptResponse(JSON.stringify(json_data));
+        
         axios({          // 송금을 위한 api로 req
             method: "post",
             url: api_url + "/api/balance/check_pw",
@@ -61,32 +60,33 @@ router.post("/post", checkCookie, function (req, res, next) {          // 송금
             result = decryptRequest(data.data);
             statusCode = result.status.code;
             message = result.status.message;
-            if(statusCode == 200) {          // 성공하면, 성공 메시지
-                axios({          // 송금을 위한 api로 req
+
+            if(statusCode == 200) {          // 성공하면, 송금 진행
+                axios({
                     method: "post",
                     url: api_url + "/api/balance/transfer",
                     headers: {"authorization": "1 " + cookie},
                     data: en_data
                 }).then((data) => {
                     result = decryptRequest(data.data);
-                    statusCode = result.data.status;
+                    statusCode = result.status.code;
                     message = result.data.message;
                     if(statusCode != 200) {          // 성공하면, 성공 메시지
                         res.send(`<script>
-                        alert("${message}");
-                        location.href=\"/bank/send\";
+                            alert("${message}");
+                            location.href=\"/bank/send\";
                         </script>`);
                     } else {          // 실패하면, 실패 메시지
                         res.send(`<script>
-                        alert("${message}");
-                        location.href=\"/bank/send\";
+                            alert("${message}");
+                            location.href=\"/bank/send\";
                         </script>`);
                     }
                 });
             } else {          // 실패하면, 실패 메시지
                 res.send(`<script>
-                alert("${message}");
-                location.href=\"/bank/send\";
+                    alert("${message}");
+                    location.href=\"/bank/send\";
                 </script>`);
             }
         });

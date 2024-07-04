@@ -4,6 +4,7 @@ var Response = require('../../Response');
 var statusCodes = require('../../statusCodes');
 var { validateUserToken } = require("../../../middlewares/validateToken");
 var { encryptResponse, decryptRequest } = require("../../../middlewares/crypt");
+var Model = require('../../../models/index');
 
 const axios = require('axios');
 /**
