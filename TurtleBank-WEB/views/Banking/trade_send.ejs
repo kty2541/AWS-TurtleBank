@@ -1,0 +1,46 @@
+<%- include("common/header") %>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h4 class="m-0 font-weight-bold text-danger">송금하기</h4>
+    </div>
+    <div class="card-body">
+        <div class="text-center">
+            <h1 class="h4 text-gray-900 mb-4">송금</h1>
+        </div>
+        <form id="send" class="send" action="/bank/send/post" method="POST" name="send">
+            <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+
+                    <%- html %>
+
+                </div>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control form-control-user" id="exampleLastName" name="amount" placeholder="금액">
+                    </input>
+                </div>
+            </div>
+            <input type="hidden" id="ceiling" name="ceiling" value="망한값" />
+            <input type="hidden" id="accountPW" name="accountPW" value="" /> <!-- Hidden input to store accountPW -->
+            <a onclick="promptPassword()" class="btn btn-user btn-block" id="submitbutton" style="background-color:#00f !important; color:white !important;">
+                송금
+            </a>
+            <script>
+                function promptPassword() {
+                    var accountPW = prompt("Please enter your account transfer password:");
+                    if (accountPW) {
+                        // Set the value of the hidden input to the entered password
+                        document.getElementById('accountPW').value = accountPW;
+                        // Submit the form
+                        document.getElementById('send').submit();
+                    } else {
+                        alert("Transfer password is required to proceed.");
+                    }
+                }
+            </script>
+        </form>
+        <hr>
+    </div>
+</div>
+
+<%- include("common/footer") %>

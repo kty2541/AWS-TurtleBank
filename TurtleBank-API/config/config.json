@@ -1,0 +1,10 @@
+{
+  "development": {
+    "username": "root",
+    "password": "1234",
+    "database": "dvba",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "board_database": "board"
+  }
+}
