@@ -43,8 +43,6 @@ router.post("/search", [validateUserToken,decryptRequest], async (req, res) => {
     let username = req.username;
     const startDate = req.body.tripstart;
     const endDate = req.body.tripend + " 23:59:59";
-	console.log("startDate : ",startDate);
-	        console.log("endDate : ",endDate);
     try{
     const results = await Model.sequelize.query(     //username 받아서 해당 username으로 account 테이블에서 List 뽑아서, 해당 transactions에서 뽑아오는걸로.
          `

@@ -22,8 +22,7 @@ router.post('/', [validateUserToken, decryptRequest], (req, res) => {          /
     let amount = req.body.amount;
     let sendtime = req.body.sendtime;
     let username = req.username;
-    let accountPW = req.body.accountPW;
-
+    let accountPW = req.body.accountPW == null ? req.body.hAccountPW : req.body.accountPW;
     if (amount <= 0) {          // 입력값이 0보다 작거나 같으면,
         r.status = statusCodes.BAD_INPUT;
         r.data = {

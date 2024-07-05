@@ -46,7 +46,7 @@ router.post("/edit", decryptRequest, (req, res) => {
   let id = req.body.id; // 추가된 부분: 요청에서 id를 받아옴
   let title = req.body.title;
   let filepath = req.body.filepath;
-  let content = req.body.content;
+  let content = req.body.contents;
   let updatedAt = req.body.updatedAt;
 
   ModelBoard.notices
@@ -91,7 +91,7 @@ router.post("/edit_net_file", decryptRequest, (req, res) => {
 
   let id = req.body.id; // 추가된 부분: 요청에서 id를 받아옴
   let title = req.body.title;
-  let content = req.body.content;
+  let content = req.body.contents;
   let updatedAt = req.body.updatedAt;
 
   ModelBoard.notices

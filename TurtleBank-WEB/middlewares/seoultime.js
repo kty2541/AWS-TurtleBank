@@ -1,9 +1,24 @@
-var moment = require('moment');
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
 
-require('moment-timezone');
-moment.tz.setDefault("Asia/Seoul");
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
-var seoultime = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-var simpletime = moment(Date.now()).format('YYYY-MM-DD');
+const seoulTime = () => dayjs().tz('Asia/Seoul').add(9, 'hours').format('YYYY-MM-DD HH:mm:ss');
+const simpleTime = () => dayjs().tz('Asia/Seoul').add(9, 'hours').format('YYYY-MM-DD');
 
-module.exports = {seoultime, simpletime};
+Object.defineProperties(exports, {
+    seoultime: {
+        get() {
+            return seoulTime();
+        },
+        enumerable: true
+    },
+    simpletime: {
+        get() {
+            return simpleTime();
+        },
+        enumerable: true
+    }
+});

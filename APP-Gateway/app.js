@@ -7,8 +7,23 @@ const app = express();
 const PORT = 3030; // 포트
 
 const INTERNAL_SERVER_URL = 'http://10.0.20.224:3000'; // 내부망(API서버) 주소
+const DIFFERENT_SERVER = 'http://rabbit-bank.com:3030';
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms')) // 로그
+app.use( // 다른 웹서버에서 수신되는 mydata를 내부 api 서버로 
+  '/resp/api/mydata', //
+  createProxyMiddleware({
+    target: INTERNAL_SERVER_URL + '/api/mydata', // 
+    changeOrigin: false,
+  }),
+);
+app.use( // 송신할 mydata를 내 api 서버에서 다른 웹서버로
+  '/api/mydata', //
+  createProxyMiddleware({
+    target: DIFFERENT_SERVER + '/resp/api/mydata', // 
+    changeOrigin: false,
+  }),
+);
 app.use(
   '/', // 전 범위
   createProxyMiddleware({
@@ -20,3 +35,6 @@ app.use(
 app.listen(PORT, () => {
   console.log(`API Gateway is running on port ${PORT}`);
 });
+
+turtle-bank.com:3030
+m.turtle-bank.com:3030

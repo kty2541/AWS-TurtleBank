@@ -1,10 +1,10 @@
 var express = require('express');
 var router = express.Router();
+var Model = require('../../../models/index');
 var Response = require('../../Response');
 var statusCodes = require('../../statusCodes');
 var { validateUserToken } = require("../../../middlewares/validateToken");
 var { encryptResponse, decryptRequest } = require("../../../middlewares/crypt");
-var Model = require('../../../models/index');
 
 const axios = require('axios');
 /**
@@ -13,6 +13,7 @@ const axios = require('axios');
  * @middleware
  * @param to_account     - Amount to be transferred to this account
  * @param amount         - Amount to be transferred
+ * @param hAccountPW
  * @return               - Status
  */
 router.post('/', [validateUserToken,decryptRequest], (req, res) => {          // B은행 계좌에서 B은행 계좌로 송금하는 경우

@@ -23,7 +23,6 @@ router.post('/', validateUserToken, (req, res) => {
         ],
         raw: true
     }).then((data) => {
-
         if(data.length > 0) {          // account테이블에 username이 존재한다면
             r.status = statusCodes.SUCCESS;
             r.data = data;

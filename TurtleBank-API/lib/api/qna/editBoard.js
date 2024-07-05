@@ -30,12 +30,12 @@ router.post("/", decryptRequest, (req, res) => {
 
 router.post("/edit", decryptRequest, (req, res) => {
   var r = new Response();
-  let {id, title, content, updatedAt, comment} = req.body;
+  let {id, title, contents, updatedAt, comment} = req.body;
 
   ModelBoard.qnas.update(
       {
         title: title,
-        content: content,
+        content: contents,
         updatedAt: updatedAt,
       },
       {
