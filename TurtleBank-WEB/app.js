@@ -14,6 +14,7 @@ const proxy = httpProxy.createProxyServer({});
 global.api_url = api_url;
 global.file_path = file_path;
 global.server_url = server_url;
+
 global.m_host = m_host;
 global.host = host;
 
