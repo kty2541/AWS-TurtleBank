@@ -15,8 +15,10 @@ router.get("/", (req, res) => {
         data: encryptResponse(baseData)
     }).then((data) => {
         console.log("data");
+        console.log(data.headers['content-type']);
+        console.log(data.headers['content-disposition']);
         res.setHeader('Content-Type', data.headers['content-type']);
-        res.setHeader('Content-Disposition', data.headers['content-disposition']);
+        res.setHeader('Content-Disposition', data.headers['content-disposition']==undefined ? 'attachment' : data.headers['content-disposition']);
         data.data.pipe(res)
     })
 

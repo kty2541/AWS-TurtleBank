@@ -1,6 +1,6 @@
 
 var file_path = "../file/";
-var api_url = "10.0.10.79:3000";
+var api_url = "http://10.0.10.79:3000";
 var server_url = "http://turtle-bank.com"; // http://turtle_bank.com
 //var api_url = "http://127.0.0.1:3000"
 //var server_url = "http://192.168.255.1:3001"

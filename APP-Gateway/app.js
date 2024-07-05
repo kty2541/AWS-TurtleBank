@@ -36,5 +36,5 @@ app.listen(PORT, () => {
   console.log(`API Gateway is running on port ${PORT}`);
 });
 
-turtle-bank.com:3030
-m.turtle-bank.com:3030
+//turtle-bank.com:3030
+//m.turtle-bank.com:3030

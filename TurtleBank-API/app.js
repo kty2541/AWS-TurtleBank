@@ -5,7 +5,7 @@ var logger = require('morgan');
 
 
 // global.file_path = "../file/";
-global.file_path = "/home/ubuntu/AWS-TurtleBank/file";
+global.file_path = "/home/ubuntu/AWS-TurtleBank/file/";
 global.different_api = 'http://m.rabbit-bank.com/';
 
 app.use(express.json());
