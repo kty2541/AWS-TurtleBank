@@ -64,7 +64,9 @@ router.get('/', function (req, res, next) {
 router.post('/edit', checkCookie, upload.single("imgimg"), function (req, res, next) {
     let filepath = "";
     let destination = "";
-    const {title, contents, pid, deletepath} = req.body;
+    var {title, contents, pid, deletepath} = req.body;
+    
+    contents = contents.replace(/(?:\r\n|\r|\n)/g, '<br/>');
     if (req.file) {          // 해당 공지사항에 업로드된 파일이 존재하는 경우
         destination = req.file.destination;
         if (destination) {          // 해당 공지사항의 경로가 존재하는 경우

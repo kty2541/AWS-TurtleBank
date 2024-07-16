@@ -14,10 +14,15 @@ const { underscoredIf } = require('sequelize/lib/utils');
  * @return
  */
 
-router.post('/', [validateUserToken, decryptRequest], (req, res) => {          // user가 보낸 인증번호 수신
+router.post('/', 
+//	[validateUserToken, decryptRequest],
+	validateUserToken,
+	(req, res) => {          // user가 보낸 인증번호 수신
     var r = new Response();
     var username = req.username;
     var authnum = req.body.authnum;
+		console.error(username);
+		console.error(authnum);
  
     
     Model.smsauths.findOne({          // select username, authnum from smsauths where username = username;
@@ -26,8 +31,9 @@ router.post('/', [validateUserToken, decryptRequest], (req, res) => {          /
         },
         attributes: ["username", "authnum"]
         }).then((smsData) => {
+		console.error(smsData.dataValues.authnum);
             if (authnum == smsData.dataValues.authnum) {          // smsauths에 저장된 인증번호와 유저가 보낸 인증번호가 일치하는 경우
-                Model.users.update({          // update users set is_mydata = true where username = username;
+		    Model.users.update({          // update users set is_mydata = true where username = username;
                     is_mydata: true
                 }, {  where: {
                         username: username

@@ -22,6 +22,8 @@ router.get('/', function (req, res, next) {          // 글 세부내용 페이�
                     resStatus = decryptRequest(data.data).status;
                     resMessage = decryptRequest(data.data).data.message;
                     results = [decryptRequest(data.data).data];
+                    results[0].content = results[0].content.replace(/<br\s*\/?>/gi, '\n');
+                    // results.replace(/<br\s*\/?>/gi, '\n')
                     if (resStatus.code === 200) { 
                         res.render('temp/qna/getboard', 
                             {select:"qnas",results: results, u_data: cookieData.username}); 

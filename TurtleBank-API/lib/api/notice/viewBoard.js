@@ -11,6 +11,7 @@ router.post("/", (req, res) => {
     // 'notice' 테이블에서 데이터를 조회하는 쿼리
     ModelBoard.notices.findAll({
         attributes: ["id", "userId", "title", "updatedAt"],
+	order: [['id', 'DESC']]
     })
     .then((data) => {
         r.status = statusCodes.SUCCESS;

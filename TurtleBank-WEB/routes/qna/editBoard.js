@@ -18,7 +18,6 @@ router.get('/', function (req, res, next) {          // QnA글 수정 페이지 
                     url: api_url + "/api/qna/editBoard",
                     data: encryptResponse(baseData)
                 }).then((data) => {
-                    console.log(data.data);
                     resStatus = decryptRequest(data.data).status;
                     resMessage = decryptRequest(data.data).data.message;
                     results = [decryptRequest(data.data).data];
@@ -42,14 +41,16 @@ router.get('/', function (req, res, next) {          // QnA글 수정 페이지 
 });
 
 router.post('/edit', function (req, res, next) {          // editBoard에서 /edit form 실행 시
-    const {title, contents, pid} = req.body;
+    var {title, contents, pid} = req.body;
+    
+    contents = contents.replace(/(?:\r\n|\r|\n)/g, '<br/>');
     const baseData = `{"title" : "${title}","contents" : "${contents}","id" : "${pid}","updatedAt" : "${seoultime}"}`;
     axios({          //비밀번호 찾기 위한 api로 req
         method: "post",
         url: api_url + "/api/qna/editBoard/edit",
         data: encryptResponse(baseData)
     }).then((data) => {
-        console.log(data);
+        console.log(decryptRequest(data.data));
         resStatus = decryptRequest(data.data).status;
         resMessage = decryptRequest(data.data).data.message;
         if (resStatus.code === 200) {

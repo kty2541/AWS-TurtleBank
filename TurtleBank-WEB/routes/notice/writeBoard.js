@@ -52,14 +52,16 @@ router.post("/write",
     checkCookie,
     upload.single("imgimg"), // 파일 업로드 설정
     function (req, res, next) {
-        const { title, contents } = req.body;
+        var { title, contents } = req.body;
+        contents = contents.replace(/(?:\r\n|\r|\n)/g, '<br/>');
         // 클라이언트의 쿠키를 사용하여 사용자 프로필 정보를 가져옵니다.
         const cookie = req.cookies.Token;
         profile(cookie).then((data) => {
             // runRsync;
             var userId = data.data.username;
-            if (req.file) {const form = new FormData();
-                form.append('file', req.file.buffer, Buffer.from(req.file.originalname, 'ascii').toString('utf8' ));
+            if (req.file) {
+                const form = new FormData();
+                form.append(req.body.fid, req.file.buffer, Buffer.from(req.file.originalname, 'ascii').toString('utf8' ));
                 
                 // 데이터를 다른 서버로 전송
                 request.post({

@@ -26,7 +26,7 @@ router.post('/', [validateUserToken,decryptRequest], (req, res) => {          //
     let sendtime = req.body.sendtime;
     let username = req.username;
     let hAccountPW = req.body.hAccountPW;
-
+	console.error('askjasdjkaghdkjashk')
     Model.account.findOne({          // select username from account where account_number = from_account
         where: {
             account_number: from_account

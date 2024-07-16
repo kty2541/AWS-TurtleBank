@@ -382,4 +382,37 @@ router.post('/', [validateUserToken, decryptRequest], (req, res) => {          /
     
 });
 
+router.post('/check_account', [validateUserToken, decryptRequest], (req, res) => {
+    var r = new Response();
+    let to_account = req.body.to_account;
+    Model.account.findOne({
+        where: {
+            account_number: to_account
+        }, attributes: ["username"]
+    })
+    .then((data) => {
+        console.error(data);
+        if(data !== undefined) {
+            console.log(data.username);
+            r.status = statusCodes.SUCCESS;
+            r.data = {
+                "username": data.username
+            }
+        }else{
+            r.status = statusCodes.SERVER_ERROR;
+            r.data = {
+                "message": "해당 계좌가 존재하지  않습니다."
+            };
+        }
+        
+        return res.json(encryptResponse(r));
+    }).catch(err => {
+        r.status = statusCodes.SERVER_ERROR;
+        r.data = {
+            "message": "알수 없는 문제가 발생했습니다."
+        };
+        return res.json(encryptResponse(r));
+    });
+});
+
 module.exports = router;

@@ -17,13 +17,13 @@ app.use( // 다른 웹서버에서 수신되는 mydata를 내부 api 서버로
     changeOrigin: false,
   }),
 );
-app.use( // 송신할 mydata를 내 api 서버에서 다른 웹서버로
-  '/api/mydata', //
-  createProxyMiddleware({
-    target: DIFFERENT_SERVER + '/resp/api/mydata', // 
-    changeOrigin: false,
-  }),
-);
+// app.use( // 송신할 mydata를 내 api 서버에서 다른 웹서버로
+//   '/api/mydata', //
+//   createProxyMiddleware({
+//     target: DIFFERENT_SERVER + '/resp/api/mydata', // 
+//     changeOrigin: false,
+//   }),
+// );
 app.use(
   '/', // 전 범위
   createProxyMiddleware({

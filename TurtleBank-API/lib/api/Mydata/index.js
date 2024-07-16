@@ -1,9 +1,10 @@
+
 var express = require('express');
 var router = express.Router();
 
 var view = require("./view");
 var mydata_sms = require("./mydata_sms");
-var mydata_sms_check = require("./mydata_sms_check.js");
+var mydata_sms_check = require("./mydata_sms_check");
 var b_api = require("./b_api");
 
 router.use('/view', view);

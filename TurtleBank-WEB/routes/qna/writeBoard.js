@@ -22,10 +22,10 @@ router.get('/', function (req, res, next) {          // QnA 작성하는 페이�
 
 router.post('/write', function (req, res, next) {          // /writeBoard에서 /qna/writeBoard/write form을 실행하면,
     var cookie = decryptEnc(req.cookies.Token);
-    const {title, contents} = req.body;
+    var {title, contents} = req.body;
+    contents = contents.replace(/(?:\r\n|\r|\n)/g, '<br/>');
     profile(cookie).then((data) => {
         var userId = data.data.username;
-        
         const baseData = `{"userId" : "${userId}", "title" : "${title}", "content" : "${contents}", "seoultime" : "${seoultime}"}`;
         axios({          //비밀번호 찾기 위한 api로 req
             method: "post",

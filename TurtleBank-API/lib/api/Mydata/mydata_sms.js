@@ -41,6 +41,7 @@ router.get('/', validateUserToken, (req,res)=>{          // 마이데이터 요�
 
         }).then((bdata)=>{
             if (bdata.data.status.code == 200) {          // B은행에 마이데이터 요청을 한 유저가 존재하는 경우
+		
                 Model.smsauths.findOne({          // select username, authnum from smsauths where username = username;
                     where: {
                         username: username
@@ -72,7 +73,7 @@ router.get('/', validateUserToken, (req,res)=>{          // 마이데이터 요�
                 messageService.sendOne(          // 마이데이터 요청한 user의 핸드폰으로 인증번호 전송
                     {
                     to: phone,
-                    from: "01097252505",
+                    from: "01099622086",
                     text: "[인증번호] : " + auth_num_str + "를 입력해주세요."
                     }
                 ).then(() => {          // 인증번호 전송이 성공한 경우
@@ -111,5 +112,60 @@ router.get('/', validateUserToken, (req,res)=>{          // 마이데이터 요�
         return res.json(encryptResponse(r));                                
     })
 });
+
+router.post('/', 
+	//[validateUserToken, decryptRequest],
+	validateUserToken,
+	//decryptRequest,
+	(req, res) => {			 // user가 보낸 인증번호 수신
+		console.error("eeee")
+		console.error(req.body)
+		var r = new Response();
+     var username = req.username;
+     var authnum = req.body.authnum;
+console.error(req.body)
+console.error(req.query)
+
+    console.error(username)
+    console.error(authnum) 
+     Model.smsauths.findOne({          // select username, authnum from smsauths where username = username;
+         where: {
+             username: username
+         },
+         attributes: ["username", "authnum"]
+         }).then((smsData) => {
+
+                console.error(authnum);
+                console.error(smsData.dataValues.authnum);
+             if (authnum == smsData.dataValues.authnum) {          // smsauths에 저장된 인증번호와 유저가 보낸 인증번호가 일치하는 경우
+                 Model.users.update({          // update users set is_mydata = true where username = username;
+                     is_mydata: true
+                 }, {  where: {
+                         username: username
+                     }
+                 }). then(() => {
+                     r.status = statusCodes.SUCCESS;
+                     r.data = {
+                         "message": "마이데이터 연동 인증되었습니다."
+                     };
+                     return res.json(encryptResponse(r));
+                 })
+             } else {          // smsauths에 저장된 인증번호와 유저가 보낸 인증번호가 일치하지 않는 경우
+                 r.status = statusCodes.BAD_INPUT;
+                 r.data = {
+                     "message": "인증번호가 일치하지 않습니다."
+                 };
+                 return res.json(encryptResponse(r));
+            }
+
+         }).catch((err) => {
+    console.error(err)
+             r.status = statusCodes.SERVER_ERROR;
+             r.data = {
+                 "message": "다시 시도해주세요."
+             };
+             return res.json(encryptResponse(r));
+         });
+     });
 
 module.exports = router;

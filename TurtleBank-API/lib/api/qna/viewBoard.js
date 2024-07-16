@@ -11,6 +11,7 @@ router.post("/", (req, res) => {
     // 'notice' 테이블에서 데이터를 조회하는 쿼리
     ModelBoard.qnas.findAll({
         attributes: ["id", "userId", "title", "updatedAt"],
+	order: [['id', 'DESC']]
     })
     .then((data) => {
         r.status = statusCodes.SUCCESS;
@@ -28,7 +29,9 @@ router.post("/", (req, res) => {
 router.post("/all", (req, res) => {
     var r = new Response();
     // 'notice' 테이블에서 데이터를 조회하는 쿼리
-    ModelBoard.qnas.findAll({})
+    ModelBoard.qnas.findAll({
+    order: [['id', 'DESC']]
+    })
     .then((data) => {
         r.status = statusCodes.SUCCESS;
         r.data = data;
@@ -49,6 +52,7 @@ router.post("/user", decryptRequest, (req, res) => {
         where: {
             userId: req.body.userId,
         },
+	order: [['id', 'DESC']]
     })
     .then((data) => {
         r.status = statusCodes.SUCCESS;

@@ -5,8 +5,11 @@ const timezone = require('dayjs/plugin/timezone');
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-const seoulTime = () => dayjs().tz('Asia/Seoul').add(9, 'hours').format('YYYY-MM-DD HH:mm:ss');
-const simpleTime = () => dayjs().tz('Asia/Seoul').add(9, 'hours').format('YYYY-MM-DD');
+// const seoulTime = () => dayjs().tz('Asia/Seoul').add(9, 'hours').format('YYYY-MM-DD HH:mm:ss');
+// const simpleTime = () => dayjs().tz('Asia/Seoul').add(9, 'hours').format('YYYY-MM-DD');
+
+const seoulTime = () => dayjs().tz('Asia/Seoul').format('YYYY-MM-DD HH:mm:ss');
+const simpleTime = () => dayjs().tz('Asia/Seoul').format('YYYY-MM-DD');
 
 Object.defineProperties(exports, {
     seoultime: {

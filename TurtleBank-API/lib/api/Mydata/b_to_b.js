@@ -25,6 +25,7 @@ router.post('/', [validateUserToken,decryptRequest], (req, res) => {          //
     let sendtime = req.body.sendtime;
     let username = req.username;
     let hAccountPW=req.body.hAccountPW;
+	consols.error("asdad")
     if (amount < 0) {          // 출금 금액이 0원보다 적은 경우
         r.status = statusCodes.SUCCESS;
         r.data = {
@@ -58,6 +59,7 @@ router.post('/', [validateUserToken,decryptRequest], (req, res) => {          //
             }
         })
     })
+	console.error("asdasdasdasd")
     axios({          // B은행에서 송금을 하기위한 API req
         method: "post",
         url: different_api + "api/mydata/send_btob",

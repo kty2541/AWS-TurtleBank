@@ -46,8 +46,10 @@ const decryptRequest = function(req, res, next) {
   var r = new Response();
   try {
     req.body = JSON.parse(decrypt(req.body.enc_data));
+	  console.error(req.body);
     next();
   } catch(err) {
+	  console.error(err);
     r.status = statusCodes.BAD_INPUT;
     r.data = err;
     return res.json(r);

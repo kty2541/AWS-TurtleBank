@@ -16,7 +16,7 @@
 
                 </div>
                 <div class="col-sm-6">
-                    <input type="text" class="form-control form-control-user" id="exampleLastName" name="amount" placeholder="금액">
+                    <input type="text" class="form-control form-control-user" id="exampleLastName" name="amount" placeholder="보낼 금액">
                 </div>
             </div>
             <input type="hidden" id="ceiling" name="ceiling" value="망한값" />
@@ -32,7 +32,7 @@
 <!-- Modal Structure -->
 <div id="myModal" class="modal">
     <div class="modal-content">
-        <label for="maskedPW">Please enter your account transfer password:</label>
+        <label for="maskedPW">이체 비밀번호</label>
         <input type="password" id="maskedPW" class="masked-input">
         <button class="button" onclick="submitPassword()">Submit</button>
     </div>
@@ -99,11 +99,35 @@ function submitPassword() {
     var accountPW = document.getElementById('maskedPW').value;
     if (accountPW) {
         document.getElementById('accountPW').value = accountPW;
-        document.getElementById('send').submit();
+        check_Recipient();
     } else {
         alert("Transfer password is required to proceed.");
     }
     document.getElementById('myModal').style.display = 'none';
+}
+
+function check_Recipient(){
+    const to_account = document.getElementById('to_account').value;///bank/check_account // /bank/send/check
+    fetch('/bank/send/check?to='+to_account, {
+    method: 'GET',
+    credentials: 'include'
+    })
+    .then(response => {
+        if (!response.ok) {
+            alert("입력하신 계좌는 존재하지 않습니다.");
+        };
+        return response.json(); // 응답을 JSON으로 파싱
+    })
+    .then(data => {
+        var check = confirm("받는 분 성함은 : "+ data.username + " 입니다.\n 맞으면 확인 아니면 취소를 눌러주세요.");
+        if(check){
+            document.getElementById('send').submit();
+        }else{
+            alert("송금이 취소되었습니다.")
+        }
+    })
+    
+    // document.getElementById('send').submit();
 }
 
 </script>

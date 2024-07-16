@@ -45,9 +45,9 @@ router.post('/', (req, res) => {
             }).then((data) => {
                 messageService.sendOne(          // 인증번호 전송
                     {
-                    to: phone,
-                    from: "01097252505",
-                    text: "[인증번호] : " + auth_num_str + "를 입력해주세요."
+                        to: phone,
+                        from: '01099622086',
+                        text: "[인증번호] : " + auth_num_str + "를 입력해주세요."
                 }
                 ).then(res => console.log(res))
                 .catch(err => console.error(err));
