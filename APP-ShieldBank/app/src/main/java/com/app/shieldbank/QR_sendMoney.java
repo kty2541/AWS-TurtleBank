@@ -1,7 +1,8 @@
 package com.app.shieldbank;
-// 송금 Activity
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,8 +12,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -57,11 +56,8 @@ public class QR_sendMoney extends AppCompatActivity {
         }
     }
 
-    // Define the fee amount
-    final int fee = 1000; // Example fee amount
-
     // Enter the correct url for your api service site
-    final int initialTimeoutMs = 2000; // 초기 타임아웃 값 (2초)
+    final int initialTimeoutMs = 2000; // 초기 타임아웃 값 (5초)
     final int maxNumRetries = 0; // 최대 재시도 횟수
     final float backoffMultiplier = 1f; // 재시도 간격의 배수
 
@@ -75,9 +71,9 @@ public class QR_sendMoney extends AppCompatActivity {
         Intent i = getIntent();
         String accountNumber = i.getStringExtra("account_number");
         tt.setText(accountNumber);
-        tt.setFocusable(false);  // 포커스 받지 않도록 설정
-        tt.setClickable(false);  // 클릭 불가능하도록 설정
-        tt.setCursorVisible(false);  // 커서 숨기기 (있는 경우)
+        tt.setFocusable(false);
+        tt.setClickable(false);
+        tt.setCursorVisible(false);
 
         send = findViewById(R.id.sendbutton);
         send.setOnClickListener(v -> sendMoney());
@@ -85,17 +81,16 @@ public class QR_sendMoney extends AppCompatActivity {
 
     public void sendMoney() {
         SharedPreferences sharedPreferences = getSharedPreferences("jwt", Context.MODE_PRIVATE);
-        final String retrievedToken = sharedPreferences.getString("accesstoken", null);
+        final String retrivedToken = sharedPreferences.getString("accesstoken", null);
         SharedPreferences sharedPreferences1 = getSharedPreferences("apiurl", Context.MODE_PRIVATE);
         final String url = sharedPreferences1.getString("apiurl", null);
-        String endpoint = "/api/balance/transfer";
+        String endpoint = "/api/balance/transfer_app";
         final String finalUrl = url + endpoint;
 
         EditText ed = findViewById(R.id.edact);     // 송금계좌
-        EditText ed2 = findViewById(R.id.edact2);    // 수취계좌
-        EditText ed3 = findViewById(R.id.edamt);     // 이체금액
+        EditText ed2 = findViewById(R.id.edact2);   // 수취계좌
+        EditText ed3 = findViewById(R.id.edamt);    // 이체금액
         EditText ed4 = findViewById(R.id.accountPW); // 계좌비번
-
         int from_account = 0;
         int to_account = 0;
         int amount = 0;
@@ -103,70 +98,112 @@ public class QR_sendMoney extends AppCompatActivity {
         String accountPW = ed4.getText().toString().trim();
         String hAccountPW = hPassword(accountPW);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC")); // Ensure the time zone is consistent
+        dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
         now = System.currentTimeMillis();
         date = new Date(now);
-        String sendtime = sdf.format(date);
+        String sendtime = dateFormat.format(date);
 
         final RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
         JSONObject requestData = new JSONObject();
         JSONObject requestDataEncrypted = new JSONObject();
         try {
-            // Fetch values
-            if (!ed.getText().toString().isEmpty() && !ed2.getText().toString().isEmpty() && !ed3.getText().toString().isEmpty() && !ed4.getText().toString().isEmpty()) {
+            if (!ed.getText().toString().isEmpty() && !ed2.getText().toString().isEmpty() && !ed3.getText().toString().isEmpty()) {
                 from_account = Integer.parseInt(ed.getText().toString());
                 to_account = Integer.parseInt(ed2.getText().toString());
                 amount = Integer.parseInt(ed3.getText().toString());
-
-                // Check if the amount is valid
-                if (amount <= 0) {
-                    Toast.makeText(getApplicationContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // Add the fee to the amount
-                int totalAmount = amount + fee;
-
-                // Input your API parameters
-                requestData.put("from_account", from_account);  // 송금계좌 varchar
-                requestData.put("to_account", to_account);      // 수취계좌 varchar
-                requestData.put("amount", amount);              // 이체금액 int
-                requestData.put("total_amount", totalAmount);   // Total amount including fee
-                requestData.put("sendtime", sendtime);          // 전송시간 datetime
-                requestData.put("accountPW", hAccountPW);       // 계좌비번
-                requestData.put("fee", fee);                    // 수수료
-
-                // Log the request data
-                Log.d("RequestData", requestData.toString());
             } else {
-                Toast.makeText(getApplicationContext(), "Invalid Input", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Invalid Input ", Toast.LENGTH_SHORT).show();
+                onRestart();
                 return;
             }
 
-            // Encrypt data before sending
-            String encryptedData = EncryptDecrypt.encrypt(requestData.toString());
-            Log.d("EncryptedRequest", encryptedData); // Log the encrypted data
-            requestDataEncrypted.put("enc_data", encryptedData);
+            requestData.put("from_account", from_account);
+            requestData.put("to_account", to_account);
+            requestData.put("amount", amount);
+            requestData.put("sendtime", sendtime);
+            requestData.put("accountPW", hAccountPW);
+
+            requestDataEncrypted.put("enc_data", EncryptDecrypt.encrypt(requestData.toString()));
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, finalUrl, requestDataEncrypted,
+        Log.d("QR_sendMoney", "Request data: " + requestData.toString());
+        Log.d("QR_sendMoney", "Encrypted request data: " + requestDataEncrypted.toString());
+
+        sendTransferRequest(requestQueue, finalUrl, retrivedToken, requestDataEncrypted, from_account, sendtime, hAccountPW);
+    }
+
+    private void sendTransferRequest(RequestQueue requestQueue, String url, String token, JSONObject requestData, int from_account, String sendtime, String hAccountPW) {
+        final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, requestData,
                 response -> {
-                    Log.d("SendResponse", response.toString());
                     try {
+                        Log.d("QR_sendMoney", "Response: " + response.toString());
                         JSONObject decryptedResponse = new JSONObject(EncryptDecrypt.decrypt(response.get("enc_data").toString()));
-                        Log.d("DecryptedResponse", decryptedResponse.toString());
+                        Log.d("QR_sendMoney", "Decrypted response: " + decryptedResponse.toString());
 
                         if (decryptedResponse.getJSONObject("status").getInt("code") != 200) {
                             Toast.makeText(getApplicationContext(), "Error: " + decryptedResponse.getJSONObject("data").getString("message"), Toast.LENGTH_SHORT).show();
                             return;
                         }
 
-                        Toast.makeText(getApplicationContext(), "Success: " + decryptedResponse.getJSONObject("data").getString("message"), Toast.LENGTH_SHORT).show();
+                        sendFeeTransfer(requestQueue, url, token, from_account, sendtime, hAccountPW);
+
                     } catch (JSONException e) {
-                        Log.d("ResponseError", String.valueOf(e));
+                        e.printStackTrace();
+                    }
+                }, error -> {
+            Log.e("QR_sendMoney", "Error: ", error);
+            Toast.makeText(getApplicationContext(), "Something went wrong[Send]", Toast.LENGTH_SHORT).show();
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Bearer " + token);
+                return headers;
+            }
+        };
+
+        requestQueue.add(jsonObjectRequest);
+        requestQueue.getCache().clear();
+    }
+
+    private void sendFeeTransfer(RequestQueue requestQueue, String url, String token, int from_account, String sendtime, String hAccountPW) {
+        int fee_amount = 1000;
+        int fee_account = 999999;  // Administrator account
+
+        JSONObject feeRequestData = new JSONObject();
+        JSONObject feeRequestDataEncrypted = new JSONObject();
+
+        try {
+            feeRequestData.put("from_account", from_account);
+            feeRequestData.put("to_account", fee_account);
+            feeRequestData.put("amount", fee_amount);
+            feeRequestData.put("sendtime", sendtime);
+            feeRequestData.put("accountPW", hAccountPW);
+
+            feeRequestDataEncrypted.put("enc_data", EncryptDecrypt.encrypt(feeRequestData.toString()));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.d("QR_sendMoney", "Fee request data: " + feeRequestData.toString());
+        Log.d("QR_sendMoney", "Encrypted fee request data: " + feeRequestDataEncrypted.toString());
+
+        final JsonObjectRequest feeRequest = new JsonObjectRequest(Request.Method.POST, url, feeRequestDataEncrypted,
+                response -> {
+                    try {
+                        Log.d("QR_sendMoney", "Fee Response: " + response.toString());
+                        JSONObject decryptedResponse = new JSONObject(EncryptDecrypt.decrypt(response.get("enc_data").toString()));
+                        Log.d("QR_sendMoney", "Decrypted fee response: " + decryptedResponse.toString());
+
+                        if (decryptedResponse.getJSONObject("status").getInt("code") != 200) {
+                            Toast.makeText(getApplicationContext(), "Error: " + decryptedResponse.getJSONObject("data").getString("message"), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        Toast.makeText(getApplicationContext(), "송금과 수수료 송금이 성공적으로 완료되었습니다.", Toast.LENGTH_SHORT).show();
+                    } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
@@ -174,23 +211,18 @@ public class QR_sendMoney extends AppCompatActivity {
                     setResult(Activity.RESULT_OK, resultIntent);
                     finish();
                 }, error -> {
-            Log.d("NetworkError", String.valueOf(error));
-            Toast.makeText(getApplicationContext(), "Something went wrong[Send]", Toast.LENGTH_SHORT).show();
+            Log.e("QR_sendMoney", "Fee Error: ", error);
+            Toast.makeText(getApplicationContext(), "Something went wrong[Fee Send]", Toast.LENGTH_SHORT).show();
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<>();
-                headers.put("Authorization", "Bearer " + retrievedToken);
+                headers.put("Authorization", "Bearer " + token);
                 return headers;
-            }
-
-            @Override
-            public RetryPolicy getRetryPolicy() {
-                return policy;
             }
         };
 
-        requestQueue.add(jsonObjectRequest);
+        requestQueue.add(feeRequest);
         requestQueue.getCache().clear();
     }
 }
