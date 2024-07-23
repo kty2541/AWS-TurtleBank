@@ -1,7 +1,0 @@
-Executable : C:\Users\Administrator\AppData\Local\Android\Sdk\cmake\3.18.1\bin\ninja.exe
-arguments : 
--C
-C:\Users\Administrator\Desktop\sk\FinalProject\TurtleBank-master\APP-TurtleBank\app\.cxx\Debug\4y4j6a5e\x86_64
-frida-check
-jvmArgs : 
-

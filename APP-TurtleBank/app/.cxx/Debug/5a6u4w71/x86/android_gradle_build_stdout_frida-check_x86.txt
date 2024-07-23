@@ -1,2 +1,0 @@
-ninja: Entering directory `C:\Users\r2com\Desktop\FinalProject\AWS-TurtleBank\APP-TurtleBank\app\.cxx\Debug\5a6u4w71\x86'
-ninja: no work to do.

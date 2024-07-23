@@ -1,2 +1,0 @@
-ninja: Entering directory `C:\Users\Administrator\Desktop\sk\FinalProject\TurtleBank-master\APP-TurtleBank\app\.cxx\Debug\4y4j6a5e\x86_64'
-ninja: no work to do.

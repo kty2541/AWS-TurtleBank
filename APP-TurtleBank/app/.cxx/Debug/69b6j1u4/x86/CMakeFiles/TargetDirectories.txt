@@ -1,3 +1,0 @@
-D:/APP-TurtleBank_final/app/.cxx/Debug/69b6j1u4/x86/CMakeFiles/frida-check.dir
-D:/APP-TurtleBank_final/app/.cxx/Debug/69b6j1u4/x86/CMakeFiles/edit_cache.dir
-D:/APP-TurtleBank_final/app/.cxx/Debug/69b6j1u4/x86/CMakeFiles/rebuild_cache.dir
