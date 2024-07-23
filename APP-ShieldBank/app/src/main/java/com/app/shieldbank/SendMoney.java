@@ -8,7 +8,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -44,7 +43,6 @@ public class SendMoney extends AppCompatActivity {
     long now;
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-
     protected static String hPassword(String accountPW) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -79,7 +77,6 @@ public class SendMoney extends AppCompatActivity {
         send.setOnClickListener(v -> sendMoney());
     }
 
-
     public void sendMoney() {
         SharedPreferences sharedPreferences = getSharedPreferences("jwt", Context.MODE_PRIVATE);
         final String retrivedToken = sharedPreferences.getString("accesstoken", null);
@@ -96,10 +93,10 @@ public class SendMoney extends AppCompatActivity {
         int from_account = 0;
         int to_account = 0;
         int amount = 0;
+        final int fee = 1000; // Set the fee amount here
 
         String accountPW = ed4.getText().toString().trim();
         String hAccountPW = hPassword(accountPW);
-
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         now = System.currentTimeMillis();
@@ -110,8 +107,6 @@ public class SendMoney extends AppCompatActivity {
         JSONObject requestData = new JSONObject();
         JSONObject requestDataEncrypted = new JSONObject();
 
-
-
         try {
             // fetch values
             if (!ed.getText().toString().isEmpty() && !ed2.getText().toString().isEmpty() && !ed3.getText().toString().isEmpty() && !ed4.getText().toString().isEmpty()) {
@@ -119,21 +114,27 @@ public class SendMoney extends AppCompatActivity {
                 to_account = Integer.parseInt(ed2.getText().toString());
                 amount = Integer.parseInt(ed3.getText().toString());
 
+                // Check if the amount is valid
+                if (amount <= 0) {
+                    Toast.makeText(getApplicationContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
+                // input your API parameters
+                requestData.put("from_account", from_account);  // 송금계좌 varchar
+                requestData.put("to_account", to_account);      // 수취계좌 varchar
+                requestData.put("amount", amount);              // 이체금액 int
+                requestData.put("sendtime", sendtime);          // 전송시간 datetime
+                requestData.put("accountPW", hAccountPW);       // 계좌비번
+                requestData.put("fee", fee);                    // 수수료
 
+                // Add the fee to the admin account
+                requestData.put("admin_account", 999999);       // Example admin account number
             } else {
                 Toast.makeText(getApplicationContext(), "Invalid Input ", Toast.LENGTH_SHORT).show();
                 onRestart();
+                return;
             }
-
-            // input your API parameters
-            requestData.put("from_account", from_account);  // 송금계좌 varchar
-            requestData.put("to_account", to_account);      // 수취계좌 varchar
-            requestData.put("amount", amount);              // 이체금액 int
-            requestData.put("sendtime", sendtime);          // 전송시간 datetime
-            requestData.put("hAccountPW", hAccountPW);          //
-
-            //Log.d("formmmmmmmmmmmm", requestData.toString());
 
             // Encrypt data before sending
             requestDataEncrypted.put("enc_data", EncryptDecrypt.encrypt(requestData.toString()));
@@ -142,28 +143,24 @@ public class SendMoney extends AppCompatActivity {
         }
 
         // Enter the correct url for your api service site
-        final int initialTimeoutMs = 2000; // 초기 타임아웃 값 (5초)
+        final int initialTimeoutMs = 2000; // 초기 타임아웃 값 (2초)
         final int maxNumRetries = 0; // 최대 재시도 횟수
         final float backoffMultiplier = 1f; // 재시도 간격의 배수
 
         RetryPolicy policy = new DefaultRetryPolicy(initialTimeoutMs, maxNumRetries, backoffMultiplier);
 
-
-
-
         final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, finalUrl, requestDataEncrypted,
                 response -> {
-                    Log.d("sendxxx","yes");
+                    Log.d("sendxxx", "yes");
                     try {
                         JSONObject decryptedResponse = new JSONObject(EncryptDecrypt.decrypt(response.get("enc_data").toString()));
-                        //Log.d("Send Money", decryptedResponse.toString());
 
                         if (decryptedResponse.getJSONObject("status").getInt("code") != 200) {
                             Toast.makeText(getApplicationContext(), "Error: " + decryptedResponse.getJSONObject("data").getString("message"), Toast.LENGTH_SHORT).show();
                             return;
                         }
 
-                        Toast.makeText(getApplicationContext(), "" + EncryptDecrypt.decrypt(response.get("enc_data").toString()), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Success: " + decryptedResponse.getJSONObject("data").getString("message"), Toast.LENGTH_SHORT).show();
                     } catch (JSONException e) {
                         Log.d("1234", String.valueOf(e));
                         e.printStackTrace();
@@ -174,15 +171,14 @@ public class SendMoney extends AppCompatActivity {
                     finish();
                 }, error -> Toast.makeText(getApplicationContext(), "Something went wrong[Send]", Toast.LENGTH_SHORT).show()) {
             @Override
-            public Map getHeaders() throws AuthFailureError {
-                HashMap headers = new HashMap();
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<>();
                 headers.put("Authorization", "Bearer " + retrivedToken);
                 return headers;
             }
 
             @Override
             public RetryPolicy getRetryPolicy() {
-                // RetryPolicy 설정
                 return policy;
             }
         };
